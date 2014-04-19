@@ -8,7 +8,6 @@ import struct
 import traceback, code
 import optparse
 import SocketServer
-from BeautifulSoup import BeautifulSoup
 
 import rospy
 import actionlib
@@ -20,7 +19,7 @@ from deserialize import RobotState, RobotMode
 
 prevent_programming = False
 
-# Joint offsets, pulled from calibration information stored in the URDF
+# Joint offsets, URDF loading removed in Hydro release.
 #
 # { "joint_name" : offset }
 #
@@ -630,20 +629,12 @@ class UR5TrajectoryFollower(object):
                     #    self.goal_handle = None
 
 # joint_names: list of joints
+# Functionality removed for Hydro release (may or may not be added back 
+# in subsequent release)
 #
 # returns: { "joint_name" : joint_offset }
-def load_joint_offsets(joint_names):
-    robot_description = rospy.get_param("robot_description")
-    soup = BeautifulSoup(robot_description)
-    
+def load_joint_offsets(joint_names):    
     result = {}
-    for joint in joint_names:
-        try:
-            joint_elt = soup.find('joint', attrs={'name': joint})
-            calibration_offset = float(joint_elt.calibration_offset["value"])
-            result[joint] = calibration_offset
-        except Exception, ex:
-            rospy.logwarn("No calibration offset for joint \"%s\"" % joint)
     return result
 
 def get_my_ip(robot_ip, port):
@@ -673,7 +664,7 @@ def main():
     # Reads the calibrated joint offsets from the URDF
     global joint_offsets
     joint_offsets = load_joint_offsets(joint_names)
-    rospy.logerr("Loaded calibration offsets: %s" % joint_offsets)
+    rospy.loginfo("Loaded calibration offsets: %s" % joint_offsets)
 
     # Reads the maximum velocity
     global max_velocity

@@ -62,7 +62,7 @@ FUN_SET_FLAG = 2
 FUN_SET_ANALOG_OUT = 3
 FUN_SET_TOOL_VOLTAGE = 4
 
-IO_SLEEP_TIME = 0.05
+IO_SLEEP_TIME = 0.01
 
 JOINT_NAMES = ['shoulder_pan_joint', 'shoulder_lift_joint', 'elbow_joint',
                'wrist_1_joint', 'wrist_2_joint', 'wrist_3_joint']
@@ -434,6 +434,7 @@ class CommanderTCPHandler(SocketServer.BaseRequestHandler):
             self.request.send(struct.pack("!i", MSG_QUIT))
             
     def send_servoj(self, waypoint_id, q_actual, t):
+
         assert(len(q_actual) == 6)
         q_robot = [0.0] * 6
         for i, q in enumerate(q_actual):
@@ -732,6 +733,8 @@ class URTrajectoryFollower(object):
     def _update(self, event):
         if self.robot and self.traj:
             now = time.time()
+
+
             if (now - self.traj_t0) <= self.traj.points[-1].time_from_start.to_sec():
                 self.last_point_sent = False #sending intermediate points
                 setpoint = sample_traj(self.traj, now - self.traj_t0)

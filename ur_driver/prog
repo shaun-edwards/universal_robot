@@ -19,9 +19,7 @@ def driverProg():
   MULT_time = 1000000.0
   MULT_blend = 1000.0
 	MULT_payload_mass = 4.0
-	MULT_payload_cog_x= 0.0
-	MULT_payload_cog_y= 0.0
-	MULT_payload_cog_z= 0.2
+	MULT_payload_cog = p[0.0, 0.0, 0.2, 0.0, 0.0, 0.0]
   pi = 3.14159265359
   
   def send_out(msg):
@@ -143,8 +141,8 @@ def driverProg():
   end
 
 	# setting payload parameters
-	#set_payload(MULT_payload_mass,[MULT_payload_cog_x,MULT_payload_cog_y,MULT_payload_cog_z])
 	set_payload(MULT_payload_mass)
+	set_tcp(MULT_payload_cog)
   
   socket_open(HOSTNAME, PORT)
   send_out("hello")

@@ -18,8 +18,8 @@ def driverProg():
   MULT_jointstate = 10000.0
   MULT_time = 1000000.0
   MULT_blend = 1000.0
-	MULT_payload_mass = 4.0
-	MULT_payload_cog = p[0.0, 0.0, 0.2, 0.0, 0.0, 0.0]
+	MULT_payload_mass = 5.0
+	MULT_payload_cog = p[0.0, 0.0, 0.1, 0.0, 0.0, 0.0]
   pi = 3.14159265359
   
   def send_out(msg):
@@ -63,23 +63,23 @@ def driverProg():
       socket_send_int(floor(MULT_jointstate * tau[3]))
       socket_send_int(floor(MULT_jointstate * tau[4]))
       socket_send_int(floor(MULT_jointstate * tau[5]))
-      socket_send_int(MSG_WRENCH)
-      socket_send_int(floor(MULT_wrench * wrench[0]))
-      socket_send_int(floor(MULT_wrench * wrench[1]))
-      socket_send_int(floor(MULT_wrench * wrench[2]))
-      socket_send_int(floor(MULT_wrench * wrench[3]))
-      socket_send_int(floor(MULT_wrench * wrench[4]))
-      socket_send_int(floor(MULT_wrench * wrench[5]))
-      socket_send_int(MSG_GET_IO)
-      socket_send_int(1*get_digital_in(0) + 2*get_digital_in(1) + 4 * get_digital_in(2) + 8 * get_digital_in(3) + 16 * get_digital_in(4) + 32 * get_digital_in(5) + 64 * get_digital_in(6) + 128 * get_digital_in(7) + 256 * get_digital_in(8) + 512 * get_digital_in(9))
-      socket_send_int(1*get_digital_out(0) + 2*get_digital_out(1) + 4 * get_digital_out(2) + 8 * get_digital_out(3) + 16 * get_digital_out(4) + 32 * get_digital_out(5) + 64 * get_digital_out(6) + 128 * get_digital_out(7) + 256 * get_digital_out(8) + 512 * get_digital_out(9))
-      socket_send_int(pow(2,0)*get_flag(0) + pow(2,1)*get_flag(1) + pow(2,2)*get_flag(2) + pow(2,3)*get_flag(3) + pow(2,4)*get_flag(4) + pow(2,5)*get_flag(5) + pow(2,6)*get_flag(6) + pow(2,7)*get_flag(7) + pow(2,8)*get_flag(8) + pow(2,9)*get_flag(9) + pow(2,10)*get_flag(10) + pow(2,11)*get_flag(11) + pow(2,12)*get_flag(12) + pow(2,13)*get_flag(13) + pow(2,14)*get_flag(14) + pow(2,15)*get_flag(15) + pow(2,16)*get_flag(16) + pow(2,17)*get_flag(17) + pow(2,18)*get_flag(18) + pow(2,19)*get_flag(19) + pow(2,20)*get_flag(20) + pow(2,21)*get_flag(21) + pow(2,22)*get_flag(22) + pow(2,23)*get_flag(23) + pow(2,24)*get_flag(24) + pow(2,25)*get_flag(25) + pow(2,26)*get_flag(26) + pow(2,27)*get_flag(27) + pow(2,28)*get_flag(28) + pow(2,29)*get_flag(29) + pow(2,30)*get_flag(30) + pow(2,31)*get_flag(31) + pow(2,32)*get_flag(32))
-      socket_send_int(get_analog_out(0)*1000000)
-      socket_send_int(get_analog_out(1)*1000000)
-      socket_send_int(get_analog_in(0)*1000000)
-      socket_send_int(get_analog_in(1)*1000000)
-      socket_send_int(get_analog_in(2)*1000000)
-      socket_send_int(get_analog_in(3)*1000000)
+      #socket_send_int(MSG_WRENCH)
+      #socket_send_int(floor(MULT_wrench * wrench[0]))
+      #socket_send_int(floor(MULT_wrench * wrench[1]))
+      #socket_send_int(floor(MULT_wrench * wrench[2]))
+      #socket_send_int(floor(MULT_wrench * wrench[3]))
+      #socket_send_int(floor(MULT_wrench * wrench[4]))
+      #socket_send_int(floor(MULT_wrench * wrench[5]))
+      #socket_send_int(MSG_GET_IO)
+      #socket_send_int(1*get_digital_in(0) + 2*get_digital_in(1) + 4 * get_digital_in(2) + 8 * get_digital_in(3) + 16 * get_digital_in(4) + 32 * get_digital_in(5) + 64 * get_digital_in(6) + 128 * get_digital_in(7) + 256 * get_digital_in(8) + 512 * get_digital_in(9))
+      #socket_send_int(1*get_digital_out(0) + 2*get_digital_out(1) + 4 * get_digital_out(2) + 8 * get_digital_out(3) + 16 * get_digital_out(4) + 32 * get_digital_out(5) + 64 * get_digital_out(6) + 128 * get_digital_out(7) + 256 * get_digital_out(8) + 512 * get_digital_out(9))
+      #socket_send_int(pow(2,0)*get_flag(0) + pow(2,1)*get_flag(1) + pow(2,2)*get_flag(2) + pow(2,3)*get_flag(3) + pow(2,4)*get_flag(4) + pow(2,5)*get_flag(5) + pow(2,6)*get_flag(6) + pow(2,7)*get_flag(7) + pow(2,8)*get_flag(8) + pow(2,9)*get_flag(9) + pow(2,10)*get_flag(10) + pow(2,11)*get_flag(11) + pow(2,12)*get_flag(12) + pow(2,13)*get_flag(13) + pow(2,14)*get_flag(14) + pow(2,15)*get_flag(15) + pow(2,16)*get_flag(16) + pow(2,17)*get_flag(17) + pow(2,18)*get_flag(18) + pow(2,19)*get_flag(19) + pow(2,20)*get_flag(20) + pow(2,21)*get_flag(21) + pow(2,22)*get_flag(22) + pow(2,23)*get_flag(23) + pow(2,24)*get_flag(24) + pow(2,25)*get_flag(25) + pow(2,26)*get_flag(26) + pow(2,27)*get_flag(27) + pow(2,28)*get_flag(28) + pow(2,29)*get_flag(29) + pow(2,30)*get_flag(30) + pow(2,31)*get_flag(31) + pow(2,32)*get_flag(32))
+      #socket_send_int(get_analog_out(0)*1000000)
+      #socket_send_int(get_analog_out(1)*1000000)
+      #socket_send_int(get_analog_in(0)*1000000)
+      #socket_send_int(get_analog_in(1)*1000000)
+      #socket_send_int(get_analog_in(2)*1000000)
+      #socket_send_int(get_analog_in(3)*1000000)
       #socket_send_int(7895160)  # Recognizable  ".xxx" or 00787878
       exit_critical
     end
@@ -92,49 +92,57 @@ def driverProg():
     sync()
   end
   
-  SERVO_IDLE = 0
-  SERVO_RUNNING = 1
-  cmd_servo_state = SERVO_IDLE
-  cmd_servo_id = 0  # 0 = idle, -1 = stop
-  cmd_servo_q = [0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
-  cmd_servo_dt = 0.0
-  def set_servo_setpoint(id, q, dt):
+  # 3 Parameters are stored for movej
+  # - q - joint point
+  # - p - parameters (v, a, dt, r)
+  cmd_movej_q_buf = [0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
+  cmd_movej_p_buf = [0.0, 0.0, 0.0, 0.0]
+  buf_full = False
+  
+  cmd_movej_q = [0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
+  cmd_movej_p = [0.0, 0.0, 0.0, 0.0]
+  
+  def is_buffer_full():
     enter_critical
-    cmd_servo_state = SERVO_RUNNING
-    cmd_servo_id = id
-    cmd_servo_q = q
-    cmd_servo_dt = dt
+    rtn = buf_full
+    exit_critical
+    return rtn
+  end
+  
+  def queue_movej_point(q, p):
+    while is_buffer_full():
+      sleep(0.010)
+      sync()
+      #Wait for buffer to empty out
+    end
+    enter_critical
+    cmd_movej_q_buf = q
+    cmd_movej_p_buf = p
+    buf_full = True
     exit_critical
   end
-  thread servoThread():
-    state = SERVO_IDLE
+    
+  def send_waypoint_queued(id):
+    enter_critical
+    socket_send_int(MSG_WAYPOINT_FINISHED)
+    socket_send_int(waypoint_id)
+    exit_critical
+  end
+    
+  thread movejThread():
     while True:
-      # Latches the new command
-      enter_critical
-      q = cmd_servo_q
-      dt = cmd_servo_dt
-      id = cmd_servo_id
-      do_brake = False
-      if (state == SERVO_RUNNING) and (cmd_servo_state == SERVO_IDLE):
-        # No command pending
-        do_brake = True
-      end
-      state = cmd_servo_state
-      cmd_servo_state = SERVO_IDLE
-      exit_critical
-      
-      #do_brake = False
-      
-      # Executes the command
-      if do_brake:
-        #stopj(1.0)  # TODO
-        send_out("Braking")
-        sync()
-      elif state == SERVO_RUNNING:
-        servoj(q, 0, 0, dt)
-        #send_out("Servoed")
+      if is_buffer_full():
+        ##send_out("Unloading Buffer")
+        enter_critical
+        cmd_movej_q = cmd_movej_q_buf
+        cmd_movej_p = cmd_movej_p_buf
+        buf_full = False
+        exit_critical
+        ##send_out("movej started")
+        movej(q, p[0], p[1], p[2], p[3])
+        ##servoj(q, 0, 0, p[2])
+        ##send_out("movej finished")
       else:
-        #send_out("Idle")
         sync()
       end
     end
@@ -148,7 +156,7 @@ def driverProg():
   send_out("hello")
   
   thread_state = run statePublisherThread()
-  thread_servo = run servoThread()
+  thread_movej = run movejThread()
   
   # Servoes in a circle
   #movej([1.5,-0.4,-1.57,0,0,0], 3, 0.75, 1.0)
@@ -192,16 +200,15 @@ def driverProg():
                    params_mult[5] / MULT_jointstate,
                    params_mult[6] / MULT_jointstate,
                    params_mult[7] / MULT_jointstate]
-        a = params_mult[8] / MULT_jointstate
-        v = params_mult[9] / MULT_jointstate
-        t = params_mult[10] / MULT_time
-        r = params_mult[11] / MULT_blend
+        p = [params_mult[8] / MULT_jointstate,
+                   params_mult[9] / MULT_jointstate,
+                   params_mult[10] / MULT_time,
+                   params_mult[11] / MULT_blend]
+        send_out("Queueing point")
+        queue_movej_point(q, p)
+        send_out("Point queued")
+        send_waypoint_queued(waypoint_id)
         
-        # Sends the command
-        send_out("movej started")
-        movej(q, a, v, t, r)
-        send_waypoint_finished(waypoint_id)
-        send_out("movej finished")
       elif mtype == MSG_SERVOJ:
         # Reads the parameters
         params_mult = socket_read_binary_integer(1+6+1)
@@ -222,7 +229,7 @@ def driverProg():
         # Servos
         #servoj(q, 3, 0.1, t)
         #send_waypoint_finished(waypoint_id)
-        set_servo_setpoint(waypoint_id, q, t)
+        #set_servo_setpoint(waypoint_id, q, t)
       elif mtype == MSG_STOPJ:
         send_out("Received stopj")
         stopj(1.0)
@@ -234,7 +241,7 @@ def driverProg():
           send_out("Received no parameters for set_out message")
         end
         if params_mult[2] > 0:
-	  set_digital_out(params_mult[1], True)
+	        set_digital_out(params_mult[1], True)
         elif params_mult[2] == 0:
           set_digital_out(params_mult[1], False)
         end

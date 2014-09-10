@@ -94,7 +94,7 @@ def dumpstacks():
     print "\n".join(code)
 
 def log(s):
-    print "[%s] %s" % (datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S.%f'), s)
+    rospy.loginfo(s)
 
 
 RESET_PROGRAM = '''def resetProg():
@@ -419,7 +419,10 @@ class CommanderTCPHandler(SocketServer.BaseRequestHandler):
                         buf = buf + self.recv_more()
                     waypoint_id = struct.unpack_from("!i", buf, 0)[0]
                     buf = buf[4:]
-                    print "Waypoint finished (not handled)"
+                    if self.waypoint_finished_cb:
+                      self.waypoint_finished_cb(waypoint_id)
+                    else:
+                      rospy.logerr("Waypoint finished callback not defined")
                 else:
                     raise Exception("Unknown message type: %i" % mtype)
 
@@ -442,6 +445,22 @@ class CommanderTCPHandler(SocketServer.BaseRequestHandler):
         params = [MSG_SERVOJ, waypoint_id] + \
                  [MULT_jointstate * qq for qq in q_robot] + \
                  [MULT_time * t]
+        buf = struct.pack("!%ii" % len(params), *params)
+        with self.socket_lock:
+            self.request.send(buf)
+
+    def send_movej(self, waypoint_id, q_actual, t, r):
+
+        assert(len(q_actual) == 6)
+        q_robot = [0.0] * 6
+        for i, q in enumerate(q_actual):
+            q_robot[i] = q - joint_offsets.get(joint_names[i], 0.0)
+        params = [MSG_MOVEJ, waypoint_id] + \
+                 [MULT_jointstate * qq for qq in q_robot] + \
+                 [3.0 * MULT_jointstate, 0.75 * MULT_jointstate] + \
+                 [MULT_time * t] + \
+                 [MULT_blend * r]
+        rospy.loginfo("Sending movej command: " + str(params))
         buf = struct.pack("!%ii" % len(params), *params)
         with self.socket_lock:
             self.request.send(buf)
@@ -600,6 +619,7 @@ class URTrajectoryFollower(object):
     def __init__(self, robot, goal_time_tolerance=None):
         self.goal_time_tolerance = goal_time_tolerance or rospy.Duration(0.0)
         self.joint_goal_tolerances = [0.05, 0.05, 0.05, 0.05, 0.05, 0.05]
+        self.blending = 0.050
         self.following_lock = threading.Lock()
         self.T0 = time.time()
         self.robot = robot
@@ -615,7 +635,8 @@ class URTrajectoryFollower(object):
         self.pending_i = 0
         self.last_point_sent = True
 
-        self.update_timer = rospy.Timer(rospy.Duration(self.RATE), self._update)
+        # Disabling update
+        ##self.update_timer = rospy.Timer(rospy.Duration(self.RATE), self._update)
 
     def set_robot(self, robot):
         # Cancels any goals in progress
@@ -652,7 +673,11 @@ class URTrajectoryFollower(object):
 
     def on_goal(self, goal_handle):
         log("on_goal")
-
+        
+        # Updating the connected robot, because sometimes it isn't valid
+        self.robot = getConnectedRobot()
+        self.robot.set_waypoint_finished_cb(self._movej_waypoint_cb)
+        
         # Checks that the robot is connected
         if not self.robot:
             rospy.logerr("Received a goal, but the robot is not connected")
@@ -687,24 +712,61 @@ class URTrajectoryFollower(object):
         # Orders the joints of the trajectory according to joint_names
         reorder_traj_joints(goal_handle.get_goal().trajectory, joint_names)
                 
-        with self.following_lock:
-            if self.goal_handle:
-                # Cancels the existing goal
-                self.goal_handle.set_canceled()
-                self.first_waypoint_id += len(self.goal_handle.get_goal().trajectory.points)
-                self.goal_handle = None
+        if self.goal_handle:
+            # Cancels the existing goal
+            self.goal_handle.set_canceled()
+            ##self.first_waypoint_id += len(self.goal_handle.get_goal().trajectory.points)
+            ##TODO: Send movej stop!
+            self.goal_handle = None
+        
+        # Replaces the goal
+        self.goal_handle = goal_handle
+        self.traj = goal_handle.get_goal().trajectory
+        self.goal_handle.set_accepted()
+        
+        # Send first point (ignore first point if time is empty)
+        point = self.traj.points[0]
+        point_id = 0
+        t = point.time_from_start.to_sec()
+        q = point.positions
+        r = self.blending
+        # Ingore negative/zero time stamps
+        if t <= 0:
+          point = self.traj.points[1]
+          point_id = 1
+          t = point.time_from_start.to_sec()
+          q = point.positions
+        
+        # Set blending radius to 0 for last point
+        if point_id == len(self.traj.points) - 1:
+          r = 0.0
+          
+        self.robot.send_movej(point_id, q, t, r)
+        
+        # The remaining points will be sent on call back
+        
+        # Inserts the current setpoint at the head of the trajectory
+        '''
+        last_time_from_start = 0.0
+        for point in self.traj.points:
+          r = self.robot
+          if r:
+            rospy.loginfo("Calculating t, using last time: " + str(last_time_from_start) + " and time from start: " + str(point.time_from_start.to_sec()))
+            t = point.time_from_start.to_sec() - last_time_from_start
+            q = point.positions
+            if t > 0.0:
+              rospy.loginfo("Sending point: " + str(point) + " at time t=" + str(t))
+              r.send_movej(999, q, t)
+              last_time_from_start = point.time_from_start.to_sec()
+              pass
+            else:
+              rospy.loginfo("Ignoring fist point: " + str(point))
+          else:
+            rospy.logwarn("Robot not valid/connected, quitting trajectory send loop")
+            
+        rospy.loginfo("Full robot trajectory sent")
+        '''
 
-            # Inserts the current setpoint at the head of the trajectory
-            now = time.time()
-            point0 = sample_traj(self.traj, now)
-            point0.time_from_start = rospy.Duration(0.0)
-            goal_handle.get_goal().trajectory.points.insert(0, point0)
-            self.traj_t0 = now
-
-            # Replaces the goal
-            self.goal_handle = goal_handle
-            self.traj = goal_handle.get_goal().trajectory
-            self.goal_handle.set_accepted()
 
     def on_cancel(self, goal_handle):
         log("on_cancel")
@@ -783,6 +845,26 @@ class URTrajectoryFollower(object):
                     #                      (last_point.positions, state.position, state.velocity))
                     #    self.goal_handle.set_aborted(text="Took too long to reach the goal")
                     #    self.goal_handle = None
+    def _movej_waypoint_cb(self, waypoint_id):
+      rospy.loginfo("Waypoint returned in callback: " + str(waypoint_id) +", length: " + str(len(self.traj.points)))
+      if waypoint_id >= 0 and waypoint_id < (len(self.traj.points) - 1):
+        prev_point = self.traj.points[waypoint_id]
+        next_point = self.traj.points[waypoint_id+1]
+        dt = next_point.time_from_start.to_sec() - prev_point.time_from_start.to_sec()
+        q = next_point.positions
+        point_id = waypoint_id + 1
+        # Set blending radius to 0 for last point
+        r = self.blending
+        if point_id == len(self.traj.points) - 1:
+          r = 0.0
+        self.robot.send_movej(point_id, q, dt, r)
+      elif waypoint_id == len(self.traj.points) - 1 :
+        rospy.loginfo("Last waypoint returned in callback: " + str(waypoint_id))
+        self.goal_handle.set_succeeded()
+        self.goal_handle = None
+      else:
+        rospy.logerr("Recieved bad waypoint id in callback: " + str(waypoint_id))
+      pass
 
 # joint_names: list of joints
 #

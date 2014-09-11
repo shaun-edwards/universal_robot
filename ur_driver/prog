@@ -112,7 +112,6 @@ def driverProg():
   def queue_movej_point(q, p):
     while is_buffer_full():
       sleep(0.010)
-      sync()
       #Wait for buffer to empty out
     end
     enter_critical
@@ -132,16 +131,18 @@ def driverProg():
   thread movejThread():
     while True:
       if is_buffer_full():
-        ##send_out("Unloading Buffer")
+        send_out("Unloading Buffer")
         enter_critical
         cmd_movej_q = cmd_movej_q_buf
         cmd_movej_p = cmd_movej_p_buf
         buf_full = False
         exit_critical
-        ##send_out("movej started")
-        movej(q, p[0], p[1], p[2], p[3])
-        ##servoj(q, 0, 0, p[2])
-        ##send_out("movej finished")
+        send_out("movej started")
+        movej(cmd_movej_q, cmd_movej_p[0], cmd_movej_p[1], cmd_movej_p[2], cmd_movej_p[3])
+        send_out("movej finished")
+        if not is_buffer_full():
+          send_out("empty buffer")
+        end
       else:
         sync()
       end
@@ -234,9 +235,9 @@ def driverProg():
         send_out("Received stopj")
         stopj(1.0)
       elif mtype == MSG_SET_DIGITAL_OUT:
-        #send_out("Received Digital Out Signal")
+        send_out("Received Digital Out Signal")
         # Reads the parameters
-        params_mult = socket_read_binary_integer(1+6+1)
+        params_mult = socket_read_binary_integer(1+1)
         if params_mult[0] == 0:
           send_out("Received no parameters for set_out message")
         end
@@ -277,6 +278,7 @@ def driverProg():
         send_out("Received unknown message type")
       end
     end
+    sync()
   end
   
   #sleep(1)

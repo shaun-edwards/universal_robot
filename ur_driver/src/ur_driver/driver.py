@@ -455,6 +455,8 @@ class CommanderTCPHandler(SocketServer.BaseRequestHandler):
         q_robot = [0.0] * 6
         for i, q in enumerate(q_actual):
             q_robot[i] = q - joint_offsets.get(joint_names[i], 0.0)
+        
+        rospy.loginfo("Populated movej command, dt: " + str(t))
         params = [MSG_MOVEJ, waypoint_id] + \
                  [MULT_jointstate * qq for qq in q_robot] + \
                  [3.0 * MULT_jointstate, 0.75 * MULT_jointstate] + \
@@ -619,7 +621,7 @@ class URTrajectoryFollower(object):
     def __init__(self, robot, goal_time_tolerance=None):
         self.goal_time_tolerance = goal_time_tolerance or rospy.Duration(0.0)
         self.joint_goal_tolerances = [0.05, 0.05, 0.05, 0.05, 0.05, 0.05]
-        self.blending = 0.050
+        self.blending = 0.025
         self.following_lock = threading.Lock()
         self.T0 = time.time()
         self.robot = robot
